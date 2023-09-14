@@ -1,18 +1,59 @@
 #include <bits/stdc++.h>
 
-// for longest non decreasing subsequence, change the lower_bound to upper_bound
-// NOTE : the vector lis is not the longest increasing subsequence, but the length of lis is the length of longest increasing subsequence
-// one counter example is [2, 3, 1] : lis according to the function is : [1, 3], but the longest increasing subsequence is [2, 3]
-int LongestIncreasingSubsequence(const std::vector<int> &A) {
-    std::vector<int> lis;
-    for (int i : A) {
-        std::vector<int>::iterator it = std::lower_bound(lis.begin(), lis.end(), i);
-        if (it == lis.end()) { lis.push_back(i); }
-        else { *it = i; }
+std::vector<int> LIS(std::vector<int> &A) {
+
+    int n = A.size();
+    std::vector<int> lis(n), temp;
+
+    for (int i = 0; i < n; i++) {
+
+        int idx = std::lower_bound(temp.begin(), temp.end(), A[i]) - temp.begin();
+
+        if (idx == temp.size()) {
+
+            temp.push_back(A[i]);
+        }
+
+        else {
+
+            temp[idx] = A[i];
+        }
+
+        lis[i] = idx + 1;
     }
-    return lis.size();
+
+    return lis;
 }
 
 int main() {
-    
+
+    int t;
+
+    std::cin >> t;
+
+    while (t--) {
+
+        int n;
+        std::cin >> n;
+
+        std::vector<int> A(n);
+
+        for (int i = 0; i < n; i++) {
+
+            std::cin >> A[i];
+        }
+
+        auto lis = LIS(A);
+
+        int ctr = 0;
+
+        for (int i : lis) {
+
+            ctr += (i == 2);
+        }
+
+        std::cout << ctr << "\n";
+    }
+
+    return 0;
 }
