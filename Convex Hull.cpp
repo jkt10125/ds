@@ -5,11 +5,10 @@ struct point {
     point() = default;
     point(int __x, int __y) : x(__x), y(__y) {}
     point operator-(const point &p) const { return point(x - p.x, y - p.y); }
-    bool operator<(const point &p) const { return (x == p.x) ? (y < p.y) : (x < p.x); }
+    long long cross(const point &p) const { return x * 1ll * p.y - y * 1ll * p.x; }
+    long long cross(const point &a, const point &b) const { return (a - *this).cross(b - *this); }
     bool operator==(const point &p) const { return (x == p.x) && (y == p.y); }
-    int dot(const point &p) const { return x * p.x + y * p.y; }
-    int cross(const point &p) const { return x * p.y - y * p.x; }
-    int cross(const point &a, const point &b) const { return (a - *this).cross(b - *this); }
+    bool operator<(const point &p) const { return (x == p.x) ? (y < p.y) : (x < p.x); }
 };
 
 std::vector<point> convexHull(std::vector<point> pts) {
