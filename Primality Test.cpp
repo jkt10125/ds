@@ -52,7 +52,6 @@ int phi(int n) {
 std::vector<std::array<int, 2>> divisor(int n) {
     std::vector<int> fact = factor(n);
     fact.erase(std::unique(fact.begin(), fact.end()), fact.end());
-    
     std::vector<std::array<int, 2>> div(1, {1, 1});
     for (int i : fact) {
         int sz = div.size();

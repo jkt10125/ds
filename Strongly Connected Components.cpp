@@ -25,7 +25,6 @@ std::vector<std::vector<int>> get_scc(const std::vector<std::vector<int>> &A) {
         SCC.back().push_back(x);
         for (int y : rA[x]) { if (!vis[y]) { scc_dfs(y); } }
     };
-
     for (int x : topo_sort(A)) {
         if (!vis[x]) { SCC.emplace_back(); scc_dfs(x); }
     }

@@ -127,117 +127,72 @@ template <const int32_t MOD> std::ostream &operator << (std::ostream & out, cons
 
 template <const int32_t MOD>
 void ntt(std::vector<modint<MOD>> &a, bool inv) {
-
     int n = a.size();
-    
     if (n == 1) return;
-    
     static const modint<MOD> root = modint<MOD>::primitiveRoot();
-    
     assert(__builtin_popcount(n) == 1 && (MOD - 1) % n == 0);
-
     static std::vector<modint<MOD>> w{1}, iw{1};
-    
     for (int m = w.size(); m < (n >> 1); m <<= 1) {
-        
         modint<MOD> dw = root.pow((MOD - 1) / (4 * m));
-        
         w.resize(m << 1), iw.resize(m << 1);
-        
         for (int i = 0; i < m; i++) {
-        
             w[m + i] = w[i] * dw, iw[m + i] = iw[i] * dw.inv();
         }
     }
-
-
-    if (!inv) {
-        
+    if (!inv) {   
         for (int m = (n >> 1); m; m >>= 1) {
-        
             for (int s = 0, k = 0; s < n; s += (m << 1), k++) {
-        
                 for (int i = s; i < s + m; i++) {
-        
                     modint<MOD> x = a[i], y = a[i + m] * w[k];
-        
                     a[i] = x + y, a[i + m] = x - y;
                 }
             }
         }
     }
     else {
-
-        for (int m = 1; m < n; m <<= 1) {
-            
+        for (int m = 1; m < n; m <<= 1) {  
             for (int s = 0, k = 0; s < n; s += (m << 1), k++) {
-                
                 for (int i = s; i < s + m; i++) {
-                    
                     modint<MOD> x = a[i], y = a[i + m];
-                    
                     a[i] = x + y, a[i + m] = (x - y) * iw[k];
                 }
             }
         }
-
         int n_inv = modint<MOD>(n).inv().value;
-        
-        for (modint<MOD> &v : a) {
-            
+        for (modint<MOD> &v : a) {   
             v *= n_inv;
         }
     }
 }
 
 void fft(std::vector<std::complex<long double>> &A, bool invert) {
-
     int n = A.size();
-
     for (int i = 1, j = 0; i < n; i++) {
-
         int bit = n >> 1;
-
         for (; j & bit; bit >>= 1) {
-            
             j ^= bit;
         }
-
         j ^= bit;
-
         if (i < j) {
-            
             std::swap(A[i], A[j]);
         }
     }
-
     for (int len = 2; len <= n; len <<= 1) {
-
         long double ang = 2 * M_PI / len * (invert ? -1 : 1);
-
         std::complex<long double> wlen(cos(ang), sin(ang));
-
         for (int i = 0; i < n; i += len) {
-
             std::complex<long double> w(1);
-
             for (int j = 0; j < len / 2; j++) {
-
                 std::complex<long double> u = A[i + j], v = A[i + j + len / 2] * w;
-                
                 A[i + j] = u + v;
-                
                 A[i + j + len / 2] = u - v;
-                
                 w *= wlen;
             }
         }
     }
 
     if (invert) {
-        
         for (std::complex<long double> &c : A) {
-
             c /= n;
         }
     }
@@ -245,63 +200,40 @@ void fft(std::vector<std::complex<long double>> &A, bool invert) {
 
 template <const int32_t MOD>
 std::vector<modint<MOD>> multiply(std::vector<modint<MOD>> A, std::vector<modint<MOD>> B) {
-
     int n = 1;
     while (n < A.size() + B.size()) {
-        
         n <<= 1;
     }
-
     A.resize(n); B.resize(n);
-
     ntt(A, false); ntt(B, false);
-
     for (int i = 0; i < n; i++) {
-        
         A[i] *= B[i];
     }
-
     ntt(A, true);
-
     return A;
 }
 
 std::vector<int> multiply(const std::vector<int> &A, const std::vector<int> &B) {
-
     int n = 1;
     while (n < A.size() + B.size()) {
-        
         n <<= 1;
     }
-
     std::vector<std::complex<long double>> A_(n), B_(n), C_(n);
-
     for (int i = 0; i < A.size(); i++) {
-        
         A_[i] = A[i];
     }
-
-    for (int i = 0; i < B.size(); i++) {
-        
+    for (int i = 0; i < B.size(); i++) {   
         B_[i] = B[i];
     }
-
     fft(A_, false); fft(B_, false);
-
     for (int i = 0; i < n; i++) {
-        
         C_[i] = A_[i] * B_[i];
     }
-
     fft(C_, true);
-
     std::vector<int> C(n);
-
     for (int i = 0; i < n; i++) {
-        
         C[i] = round(C_[i].real());
     }
-
     return C;
 }
 

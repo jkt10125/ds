@@ -8,21 +8,15 @@ template <typename T>
 using ordered_set = tree<T, null_type, std::less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 long long countSubarray(std::vector<int> &A, int k) {
-
     ordered_set<std::pair<long long, int>> os;
     long long res = 0, prefixSum = 0;
     int n = A.size();
-
     os.insert({0, -1});
-
     for (int i = 0; i < n; i++) {
-
         prefixSum += A[i];
         res += os.order_of_key({prefixSum - k, n});
-        
         os.insert({prefixSum, i});
     }
-
     return res;
 }
 

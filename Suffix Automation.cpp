@@ -4,19 +4,16 @@ struct SuffixAutomaton {
     std::vector<std::map<char, int>> edges;
     std::vector<int> link, length, terminal;
     int last;
-
     SuffixAutomaton(std::string s) {
         edges.push_back(std::map<char, int>());
         link.push_back(-1);
         length.push_back(0);
         last = 0;
-
         for (int i = 0; i < s.size(); i++) {
             edges.push_back(std::map<char, int>());
             length.push_back(i + 1);
             link.push_back(0);
             int r = edges.size() - 1;
-
             int p = last;
             while (p >= 0 && edges[p].find(s[i]) == edges[p].end()) {
                 edges[p][s[i]] = r;
