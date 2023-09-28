@@ -8,16 +8,14 @@ struct line {
     }
 };
  
-struct CHT : std::multiset<line> {
+class CHT : std::multiset<line> {
 	int mode;
-	CHT() : mode(1) { }
-
-	inline void flip_mode() { mode *= -1; }
 
 	int div (int a, int b) {
     
         return (a / b - ((a ^ b) < 0 && a % b));
     }
+	
 	bool isect (iterator x, iterator y){
 	
     	if (y == end()) {
@@ -30,7 +28,13 @@ struct CHT : std::multiset<line> {
         return (x->p >= y->p);
 	}
 	
-    void add (int sl, int in) {
+	public:
+
+	CHT() : mode(1) { }
+
+	inline void flip_mode() { mode *= -1; }
+    
+	void add (int sl, int in) {
 	
     	auto z = insert({mode * sl, mode * in, 0, 1});
         auto y = z++;
