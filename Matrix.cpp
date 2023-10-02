@@ -155,7 +155,6 @@ struct Matrix : std::vector<std::vector<T>> {
     Matrix adjoint() const { // O(n^4)
         int n = (*this).size();
         Matrix adj(n, n, 0);
-        Matrix submatrix(n - 1, n - 1, 0);
 
         for (int j = 0; j < n; j++) {
             for (int i = 0; i < n; i++) {
@@ -181,11 +180,8 @@ struct Matrix : std::vector<std::vector<T>> {
 };
 
 int main() {
-    Matrix<double> A(3, 3, 0);
+    Matrix<double> A(5, 5, 0);
     std::cin >> A;
-    auto c = A;
-    
-    std::cout << A.inverse() << std::endl;
-    std::cout << std::endl;
-    std::cout << A.adjoint() << std::endl;
+
+    std::cout << A.det();
 }
