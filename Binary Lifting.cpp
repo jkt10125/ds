@@ -3,55 +3,44 @@
 class treeAncestor {
     int n, log;
     std::vector<int> lvl;
-    std::vector<std::vector<int>> max, lift, adj;
+    std::vector<std::vector<int>> maxe, lift;
+
 public:
-    
-    treeAncestor(int __n) {
-        n = __n;
+
+    treeAncestor(std::vector<std::vector<std::array<int, 2>>> &A, int root = 0) {
+        n = A.size();
         log = std::__lg(n) + 1;
         lvl.resize(n);
-        adj.resize(n);
-        max.resize(log, std::vector<int>(n));
         lift.resize(log, std::vector<int>(n));
-    }
+        maxe.resize(log, std::vector<int>(n));
 
-    treeAncestor(const std::vector<int> &v) {
-        n = v.size();
-        log = std::__lg(n) + 1;
-        lvl.resize(n);
-        adj.resize(n);
-        max.resize(log, std::vector<int>(n));
-        lift.resize(log, std::vector<int>(n));
-        max[0] = v;
-    }
-
-    void addEdge(int u, int v) {
-        adj[u].push_back(v);
-        adj[v].push_back(u);
-    }
-
-    void calc_lvl() {
         std::function<void(int, int)> dfs = [&] (int x, int p) {
             lvl[x] = (p != -1) ? lvl[p] + 1 : 0;
-            for (int y : adj[x]) {
-                if (y != p) { dfs(y, x); }
-            }
-        };
-        dfs(0, -1);
-    }
-
-    void apply() {
-        std::function<void(int, int)> dfs = [&] (int x, int p) {
             lift[0][x] = p;
             for (int i = 1; i < log; i++) {
                 lift[i][x] = (lift[i - 1][x] != -1) ? lift[i - 1][lift[i - 1][x]] : -1;
-                max[i][x] = std::max(max[i - 1][x], (lift[i - 1][x] != -1) ? max[i - 1][lift[i - 1][x]] : 0);
+                maxe[i][x] = std::max(maxe[i - 1][x], (lift[i - 1][x] != -1) ? maxe[i - 1][lift[i - 1][x]] : 0);
             }
-            for (int y : adj[x]) {
-                if (y != p) { dfs(y, x); }
+            for (auto [y, w] : A[x]) {
+                if (y != p) {
+                    maxe[0][y] = w;
+                    dfs(y, x);
+                }
             }
         };
-        dfs(0, -1);
+        dfs(root, -1);
+    }
+
+    treeAncestor(std::vector<int> &par, std::vector<int> &W) {
+        n = par.size();
+        int root = 0;
+        while (root < n && par[root] != -1) { root++; }
+        std::vector<std::vector<std::array<int, 2>>> A(n);
+        for (int i = 1; i < n; i++) {
+            A[par[i]].push_back({i, W[i]});
+            A[i].push_back({par[i], W[i]});
+        }
+        *this = treeAncestor(A, root);
     }
 
     int kthAncestor(int x, int k) {
@@ -79,11 +68,11 @@ public:
 
         for (int i = log - 1; i >= 0; i--) {
             if (lvl[x] - (1 << i) >= lvl[l]) {
-                ans = std::max(ans, max[i][x]);
+                ans = std::max(ans, maxe[i][x]);
                 x = lift[i][x];
             }
             if (lvl[y] - (1 << i) >= lvl[l]) {
-                ans = std::max(ans, max[i][y]);
+                ans = std::max(ans, maxe[i][y]);
                 y = lift[i][y];
             }
         }
