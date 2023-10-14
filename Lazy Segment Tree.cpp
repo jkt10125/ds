@@ -1,79 +1,116 @@
 #include <bits/stdc++.h>
 
-using T = int32_t;
-class LazySegTree {
-    int h, n;
+template <typename T, const T (*func) (T, T)>
+class LazySegmentTree {
+    int n;
     std::vector<T> tree, lazy;
 
-    void apply(int p, T value, int k) { tree[p] += value; if (p < n) lazy[p] += value; }
+    inline int MSB(int x) {
+        return 31 - __builtin_clz(x);
+    }
 
-    void calc(int p, int k) { tree[p] = std::max(tree[p << 1], tree[p << 1 | 1]) + lazy[p]; }
+    inline void UPDATE(int NODE, T VAL, int SIZE) {
+        tree[NODE] += VAL;
+        if (NODE < n) {
+            lazy[NODE] += VAL;
+        }
+    }
 
-    void push(int l, int r) {
-        int s = h, k = (1 << (h - 1));
-        for (l += n, r += n - 1; s > 0; --s, k >>= 1) {
-            for (int i = l >> s; i <= r >> s; ++i) {
-                if (lazy[i]) {
-                    apply(i << 1, lazy[i], k);
-                    apply(i << 1 | 1, lazy[i], k);
-                    lazy[i] = 0;
-                }
+    void push(int NODE, int SIZE) {
+        if (lazy[NODE] == T()) {
+            return;
+        }
+        UPDATE(NODE << 1, lazy[NODE], SIZE / 2);
+        UPDATE(NODE << 1 | 1, lazy[NODE], SIZE / 2);
+        lazy[NODE] = T();
+    }
+
+    public:
+    LazySegmentTree(int size, T default_value) {
+        for (n = 1; n < size; n <<= 1);
+        tree.assign(n << 1, default_value);
+        lazy.assign(n, T());
+    }
+
+    LazySegmentTree(std::vector<T> &A, T default_value) : LazySegmentTree(A.size(), default_value) {
+        std::copy(A.begin(), A.end(), tree.begin() + n);
+        for (int i = n - 1; i; i--) {
+            tree[i] = func(tree[i << 1], tree[i << 1 | 1]);
+        }
+    }
+
+    void update(int l, int r, T val, int NODE = 1) {
+        int LEN = (n >> MSB(NODE));
+        int L = (NODE ^ (1 << MSB(NODE))) * LEN;
+        int R = L + LEN - 1;
+
+        if (l == L && r == R) {
+            UPDATE(NODE, val, LEN);
+        }
+        else {
+            int M = (L + R) >> 1;
+            push(NODE, LEN);
+
+            if (l > M) update(l, r, val, NODE << 1 | 1);
+            else if (r <= M) update(l, r, val, NODE << 1);
+            else {
+                update(l, M, val, NODE << 1);
+                update(M + 1, r, val, NODE << 1 | 1);
+            }
+            tree[NODE] = func(tree[NODE << 1], tree[NODE << 1 | 1]);
+        }
+    }
+
+    T query(int l, int r, int NODE = 1) {
+        int LEN = (n >> MSB(NODE));
+        int L = (NODE ^ (1 << MSB(NODE))) * LEN;
+        int R = L + LEN - 1;
+
+        if (l == L && r == R) {
+            return tree[NODE];
+        }
+        else {
+            int M = (L + R) >> 1;
+            push(NODE, LEN);
+            if (l > M) {
+                return query(l, r, NODE << 1 | 1);
+            }
+            else if (r <= M) {
+                return query(l, r, NODE << 1);
+            }
+            else {
+                return func(query(l, M, NODE << 1), query(M + 1, r, NODE << 1 | 1));
             }
         }
     }
 
-public:
-    LazySegTree() { }
-    LazySegTree(int n) : n(n), h(std::__lg(n) + 1) { lazy.resize(n); tree.resize(n << 1); }
-    
-    // range update
-    void update(int l, int r, T v) {
-        push(l, l + 1); push(r, r + 1);
-        bool cl = 0, cr = 0; int k = 1;
-        for (l += n, r += n + 1; l < r; l >>= 1, r >>= 1, k <<= 1) {
-            if (cl) calc(l - 1, k); if (cr) calc(r, k);
-            if (l & 1) apply(l++, v, k), cl = 1;
-            if (r & 1) apply(--r, v, k), cr = 1;
-        }
-        for (--l; r > 0; l >>= 1, r >>= 1, k <<= 1) {
-            if (cl) calc(l, k);
-            if (cr && (!cl || l != r)) calc(r, k);
-        }
-    }
+    // int findFirst(int x, int NODE = 1) {
+    //     int LEN = (n >> MSB(NODE));
+    //     int L = (NODE ^ (1 << MSB(NODE))) * LEN;
+    //     int R = L + LEN - 1;
 
-    // range query
-    T query(int l, int r) {
-        push(l, l + 1); push(r, r + 1);
-        T res = -1e18;
-        for (l += n, r += n + 1; l < r; l >>= 1, r >>= 1) {
-            if (l & 1) res = std::max(res, tree[l++]);
-            if (r & 1) res = std::max(res, tree[--r]);
-        }
-        return res;
-    }
+    //     if (LEN == 1) {
+    //         return L;
+    //     }
+    //     else {
+    //         int M = (L + R) >> 1;
+    //         push(NODE, LEN);
+    //         ...
+    //     }
+    // }
+
+    // int findLast(int x, int NODE = 1) {
+    //     int LEN = (n >> MSB(NODE));
+    //     int L = (NODE ^ (1 << MSB(NODE))) * LEN;
+    //     int R = L + LEN - 1;
+
+    //     if (LEN == 1) {
+    //         return R;
+    //     }
+    //     else {
+    //         int M = (L + R) >> 1;
+    //         push(NODE, LEN);
+    //         ...
+    //     }
+    // }
 };
-
-
-
-int main() {
-    std::ios::sync_with_stdio(false); std::cin.tie(nullptr);
-
-    int n, m;
-    std::cin >> n >> m;
-    LazySegTree seg(n);
-    while (m--) {
-        int t;
-        std::cin >> t;
-        if (t == 1) {
-            int l, r, v;
-            std::cin >> l >> r >> v;
-            seg.update(l, r - 1, v);
-        }
-        else {
-            int l, r;
-            std::cin >> l >> r;
-            std::cout << seg.query(l, r - 1) << '\n';
-        }
-    }
-    return 0;
-}
