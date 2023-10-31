@@ -102,81 +102,83 @@ struct Matrix : std::vector<std::vector<T>> {
         return in;
     }
 
-    Matrix cofactor(int row, int col) const { // O(n^2)
-        int n = (*this).size();
-        Matrix C(n - 1, n - 1, 0);
-        int i = 0, j = 0;
-        for (int r = 0; r < n; r++) {
-            for (int c = 0; c < n; c++) {
-                if (r != row && c != col) {
-                    C[i][j++] = (*this)[r][c];
-                    if (j == n - 1) { j = 0, i++; }
+    T det() const {
+		Matrix a = *this;
+		T res = 1;
+		for (int i = 0; i < (int) a.size(); i++) {
+			int id = -1;
+			for (int j = i; j < (int) a.size(); j++) {
+                if (a[j][i] != T(0)) {
+                    id = j;
+                    break;
                 }
             }
-        }
-        return C;
-    }
-
-    T det() const { // O(n^3)
-        T det = 1, total = 1; // Initialize result
-        Matrix tmp_matrix = *this;
-        T tmp[(*this).size() + 1];
-
-        for (int i = 0; i < (int) tmp_matrix.size(); i++) {
-            int index = i;
-            while (index < (int) tmp_matrix.size() && tmp_matrix[index][i] == 0) { index++; }
-            
-            if (index == (int) tmp_matrix.size()) { continue; }
-
-            if (index != i) {
-                for (int j = 0; j < (int) tmp_matrix.size(); j++) {
-                    std::swap(tmp_matrix[index][j], tmp_matrix[i][j]);
+			if (id == -1) { return T(0); }
+			if (id != i) {
+				res = -res;
+				for (int j = i; j < (int) a.size(); j++) {
+                    std::swap(a[id][j], a[i][j]);
                 }
-                det = det * (((index - i) & 1) ? -1 : 1);
+			}
+			res *= a[i][i];
+			T t = T(1) / a[i][i];
+			for (int j = i; j < (int) a.size(); j++) {
+                a[i][j] *= t;
             }
-            for (int j = 0; j < (int) tmp_matrix.size(); j++) {
-                tmp[j] = tmp_matrix[i][j];
-            }
-            for (int j = i + 1; j < (int) tmp_matrix.size(); j++) {
-                T n1 = tmp[i], n2 = tmp_matrix[j][i];
-                
-                for (int k = 0; k < (int) tmp_matrix.size(); k++) {
-                    tmp_matrix[j][k] = (n1 * tmp_matrix[j][k]) - (n2 * tmp[k]);
+			for (int j = i + 1; j < (int) a.size(); j++) {
+				auto s = a[j][i];
+				for (int k = i; k < (int) a.size(); k++) {
+                    a[j][k] -= a[i][k] * s;
                 }
-                total = total * n1;
-            }
-        }
-        for (int i = 0; i < (int) tmp_matrix.size(); i++) {
-            det = det * tmp_matrix[i][i];
-        }
-        return (det / total);
-    }
+			}
+		}
+		return res;
+	}
     
-    Matrix adjoint() const { // O(n^4)
-        int n = (*this).size();
-        Matrix adj(n, n, 0);
-
-        for (int j = 0; j < n; j++) {
-            for (int i = 0; i < n; i++) {
-                adj[i][j] = this->cofactor(i, j).det() * (((i + j) & 1) ? -1 : 1);
+    Matrix inverse() {
+		Matrix a = *this;
+		std::vector<std::array<int, 2>> swaps;
+		for (int i = 0; i < (int) a.size(); i++) {
+			int id = -1;
+			for (int j = i; j < (int) a.size(); j++) {
+                if (a[j][i] != T(0)) {
+                    id = j;
+                    break;
+                }
+            }
+			if (id == -1) {
+                return Matrix(0, 0);
+            }
+			if (id != i) {
+				swaps.push_back({id, i});
+				for (int j = 0; j < (int) a.size(); j++) {
+                    std::swap(a[i][j], a[id][j]);
+                }
+			}
+			a[i][i] =  T(1) / a[i][i];
+			for (int j = 0; j < (int) a.size(); j++) {
+                if (j != i) {
+                    a[i][j] *= a[i][i];
+                }
+            }
+			for (int j = 0; j < (int) a.size(); j++) {
+                if (j != i) {
+                    for (int k = 0; k < (int) a.size(); k++) {
+                        if (k != i) {
+                            a[j][k] -= a[j][i] * a[i][k];
+                        }
+                    }
+                    a[j][i] *= -a[i][i];
+			    }
+            }
+		}
+		for (int i = swaps.size(); i--;) {
+			for (int j = 0; j < (int) a.size(); j++) {
+                std::swap(a[j][swaps[i][0]], a[j][swaps[i][1]]);
             }
         }
-        return !adj;
-    }
-
-    Matrix inverse() const { // O(n^4)
-        int n = (*this).size();
-        Matrix inv(n, n, 0);
-        T det = this->det();
-        if (det == T(0)) { return inv; }
-        Matrix adj = this->adjoint();
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                inv[i][j] = adj[i][j] / det;
-            }
-        }
-        return inv;
-    }
+		return a;
+	}
 };
 
 int main() {
