@@ -25,7 +25,7 @@ bool isPrime (int n) {
 }
 
 // prime must contain primes atleast upto sqrt(n)
-std::vector<int> factor(int n) {
+std::vector<int> factor(int n, bool distinct = false) {
     std::vector<int> factr;
     if (n < spf.size()) {
         while (n > 1) { factr.push_back(spf[n]); n /= spf[n]; }
@@ -37,12 +37,14 @@ std::vector<int> factor(int n) {
         }
         if (n > 1) factr.push_back(n);
     }
+    if (distinct) {
+        factr.erase(std::unique(factr.begin(), factr.end()), factr.end());
+    }
     return factr;
 }
 
 int phi(int n) {
-    std::vector<int> factr = factor(n);
-    factr.erase(std::unique(factr.begin(), factr.end()), factr.end());
+    std::vector<int> factr = factor(n, true);
 
     for (int i : factr) n -= n / i;
     return n;
@@ -50,8 +52,7 @@ int phi(int n) {
 
 // divisor code for applying inclusion-exclusion principle
 std::vector<std::array<int, 2>> divisor(int n) {
-    std::vector<int> fact = factor(n);
-    fact.erase(std::unique(fact.begin(), fact.end()), fact.end());
+    std::vector<int> fact = factor(n, true);
     std::vector<std::array<int, 2>> div(1, {1, 1});
     for (int i : fact) {
         int sz = div.size();
