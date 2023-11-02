@@ -46,114 +46,69 @@ struct Hash {
 
     Hash(const std::deque<int> dq) : DQ(dq), H(0), rH(0), M(MOD) {
         for (int i = 0; i < (int) DQ.size(); i++) {
-            H.d0 = H.d0 * M.d0 + DQ[i];
-            H.d1 = H.d1 * M.d1 + DQ[i];
-            H.d2 = H.d2 * M.d2 + DQ[i];
-            H.d3 = H.d3 * M.d3 + DQ[i];
-            H.d4 = H.d4 * M.d4 + DQ[i];
-            H.d5 = H.d5 * M.d5 + DQ[i];
-            H.d6 = H.d6 * M.d6 + DQ[i];
-            H.d7 = H.d7 * M.d7 + DQ[i];
 
-            rH.d0 = rH.d0 * M.d0 + DQ[DQ.size() - i - 1];
-            rH.d1 = rH.d1 * M.d1 + DQ[DQ.size() - i - 1];
-            rH.d2 = rH.d2 * M.d2 + DQ[DQ.size() - i - 1];
-            rH.d3 = rH.d3 * M.d3 + DQ[DQ.size() - i - 1];
-            rH.d4 = rH.d4 * M.d4 + DQ[DQ.size() - i - 1];
-            rH.d5 = rH.d5 * M.d5 + DQ[DQ.size() - i - 1];
-            rH.d6 = rH.d6 * M.d6 + DQ[DQ.size() - i - 1];
-            rH.d7 = rH.d7 * M.d7 + DQ[DQ.size() - i - 1];
+            #define OP(idx) H.d##idx  = H.d##idx  * M.d##idx + DQ[i]
+                OP(0); OP(1); OP(2); OP(3); OP(4); OP(5); OP(6); OP(7);
+            #undef OP
+
+            #define PO(idx) rH.d##idx = rH.d##idx * M.d##idx + DQ[DQ.size() - i - 1]
+                PO(0); PO(1); PO(2); PO(3); PO(4); PO(5); PO(6); PO(7);
+            #undef PO
         }
     }
 
     void push_back(int x) {
-        H.d0 = H.d0 * M.d0 + x;
-        H.d1 = H.d1 * M.d1 + x;
-        H.d2 = H.d2 * M.d2 + x;
-        H.d3 = H.d3 * M.d3 + x;
-        H.d4 = H.d4 * M.d4 + x;
-        H.d5 = H.d5 * M.d5 + x;
-        H.d6 = H.d6 * M.d6 + x;
-        H.d7 = H.d7 * M.d7 + x;
 
-        rH.d0 = rH.d0 + x * M.d0.pow(DQ.size());
-        rH.d1 = rH.d1 + x * M.d1.pow(DQ.size());
-        rH.d2 = rH.d2 + x * M.d2.pow(DQ.size());
-        rH.d3 = rH.d3 + x * M.d3.pow(DQ.size());
-        rH.d4 = rH.d4 + x * M.d4.pow(DQ.size());
-        rH.d5 = rH.d5 + x * M.d5.pow(DQ.size());
-        rH.d6 = rH.d6 + x * M.d6.pow(DQ.size());
-        rH.d7 = rH.d7 + x * M.d7.pow(DQ.size());
+        #define OP(idx) H.d##idx  = H.d##idx * M.d##idx + x
+            OP(0); OP(1); OP(2); OP(3); OP(4); OP(5); OP(6); OP(7);
+        #undef OP
+
+        #define PO(idx) rH.d##idx = rH.d##idx + x * M.d##idx.pow(DQ.size())
+            PO(0); PO(1); PO(2); PO(3); PO(4); PO(5); PO(6); PO(7);
+        #undef PO
 
         DQ.push_back(x);
     }
 
     void push_front(int x) {
-        H.d0 = H.d0 + x * M.d0.pow(DQ.size());
-        H.d1 = H.d1 + x * M.d1.pow(DQ.size());
-        H.d2 = H.d2 + x * M.d2.pow(DQ.size());
-        H.d3 = H.d3 + x * M.d3.pow(DQ.size());
-        H.d4 = H.d4 + x * M.d4.pow(DQ.size());
-        H.d5 = H.d5 + x * M.d5.pow(DQ.size());
-        H.d6 = H.d6 + x * M.d6.pow(DQ.size());
-        H.d7 = H.d7 + x * M.d7.pow(DQ.size());
 
-        rH.d0 = rH.d0 * M.d0 + x;
-        rH.d1 = rH.d1 * M.d1 + x;
-        rH.d2 = rH.d2 * M.d2 + x;
-        rH.d3 = rH.d3 * M.d3 + x;
-        rH.d4 = rH.d4 * M.d4 + x;
-        rH.d5 = rH.d5 * M.d5 + x;
-        rH.d6 = rH.d6 * M.d6 + x;
-        rH.d7 = rH.d7 * M.d7 + x;
+        #define OP(idx) H.d##idx  = H.d##idx + x * M.d##idx.pow(DQ.size())
+            OP(0); OP(1); OP(2); OP(3); OP(4); OP(5); OP(6); OP(7);
+        #undef OP
+
+        #define PO(idx) rH.d##idx = rH.d##idx * M.d##idx + x
+            PO(0); PO(1); PO(2); PO(3); PO(4); PO(5); PO(6); PO(7);
+        #undef PO
 
         DQ.push_front(x);
     }
 
     void pop_back() {
+
         int x = DQ.back();
         DQ.pop_back();
 
-        H.d0 = (H.d0 - x) / M.d0;
-        H.d1 = (H.d1 - x) / M.d1;
-        H.d2 = (H.d2 - x) / M.d2;
-        H.d3 = (H.d3 - x) / M.d3;
-        H.d4 = (H.d4 - x) / M.d4;
-        H.d5 = (H.d5 - x) / M.d5;
-        H.d6 = (H.d6 - x) / M.d6;
-        H.d7 = (H.d7 - x) / M.d7;
+        #define OP(idx) H.d##idx = (H.d##idx - x) / M.d##idx
+            OP(0); OP(1); OP(2); OP(3); OP(4); OP(5); OP(6); OP(7);
+        #undef OP
 
-        rH.d0 = (rH.d0 - x * M.d0.pow(DQ.size()));
-        rH.d1 = (rH.d1 - x * M.d1.pow(DQ.size()));
-        rH.d2 = (rH.d2 - x * M.d2.pow(DQ.size()));
-        rH.d3 = (rH.d3 - x * M.d3.pow(DQ.size()));
-        rH.d4 = (rH.d4 - x * M.d4.pow(DQ.size()));
-        rH.d5 = (rH.d5 - x * M.d5.pow(DQ.size()));
-        rH.d6 = (rH.d6 - x * M.d6.pow(DQ.size()));
-        rH.d7 = (rH.d7 - x * M.d7.pow(DQ.size()));
+        #define PO(idx) rH.d##idx = rH.d##idx - x * M.d##idx.pow(DQ.size())
+            PO(0); PO(1); PO(2); PO(3); PO(4); PO(5); PO(6); PO(7);
+        #undef PO
     }
 
     void pop_front() {
+
         int x = DQ.front();
         DQ.pop_front();
 
-        H.d0 = (H.d0 - x * M.d0.pow(DQ.size()));
-        H.d1 = (H.d1 - x * M.d1.pow(DQ.size()));
-        H.d2 = (H.d2 - x * M.d2.pow(DQ.size()));
-        H.d3 = (H.d3 - x * M.d3.pow(DQ.size()));
-        H.d4 = (H.d4 - x * M.d4.pow(DQ.size()));
-        H.d5 = (H.d5 - x * M.d5.pow(DQ.size()));
-        H.d6 = (H.d6 - x * M.d6.pow(DQ.size()));
-        H.d7 = (H.d7 - x * M.d7.pow(DQ.size()));
+        #define OP(idx) H.d##idx = H.d##idx - x * M.d##idx.pow(DQ.size())
+            OP(0); OP(1); OP(2); OP(3); OP(4); OP(5); OP(6); OP(7);
+        #undef OP
 
-        rH.d0 = (rH.d0 - x) / M.d0;
-        rH.d1 = (rH.d1 - x) / M.d1;
-        rH.d2 = (rH.d2 - x) / M.d2;
-        rH.d3 = (rH.d3 - x) / M.d3;
-        rH.d4 = (rH.d4 - x) / M.d4;
-        rH.d5 = (rH.d5 - x) / M.d5;
-        rH.d6 = (rH.d6 - x) / M.d6;
-        rH.d7 = (rH.d7 - x) / M.d7;
+        #define PO(idx) rH.d##idx = (rH.d##idx - x) / M.d##idx
+            PO(0); PO(1); PO(2); PO(3); PO(4); PO(5); PO(6); PO(7);
+        #undef PO
     }
 };
 
@@ -163,6 +118,11 @@ int main() {
     int type;
     while (true) {
         std::cin >> type;
+
+        if (type == 10125) {
+            std::cout << "HEY";
+            break;
+        } 
 
         if (type == 1) {
             int x;

@@ -114,6 +114,7 @@ int main() {
     std::vector<mint> C(n + 1);
 
     for (int i = 1; i <= n; i++) {
+        
         C[i] = (A[i] * B[i]);
     }
 
@@ -123,7 +124,11 @@ int main() {
         std::cout << C[i] << " ";
     }
 
+
+
     std::cout << "\n";
 
     return 0;
 }
+
+// __builtin_mul_overflow_p
