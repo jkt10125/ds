@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 
-template <typename T, const T (*func) (T, T)>
+using T = int;
+T func(T a, T b) { return a + b; }
+
+// template <typename T, const T (*func) (T, T)>
 class LazySegmentTree {
     int n;
     std::vector<T> tree, lazy;
@@ -84,33 +87,48 @@ class LazySegmentTree {
         }
     }
 
-    // int findFirst(int x, int NODE = 1) {
+    /*
+     * if func is min then findIdx will return idx s.t A[idx] <= val
+     * if func is max then findIdx will return idx s.t A[idx] >= val
+    */
+
+    // int findFirst(int l, int r, T val, int NODE = 1) {
     //     int LEN = (n >> MSB(NODE));
     //     int L = (NODE ^ (1 << MSB(NODE))) * LEN;
     //     int R = L + LEN - 1;
-
-    //     if (LEN == 1) {
+        
+    //     if (R < l || L > r || tree[NODE] != func(tree[NODE], val)) {
+    //         return -1;
+    //     }
+    //     else if (L == R) {
     //         return L;
     //     }
     //     else {
     //         int M = (L + R) >> 1;
     //         push(NODE, LEN);
-    //         ...
+    //         int res = findFirst(l, r, val, NODE << 1);
+    //         if (res != -1) { return res; }
+    //         return findFirst(l, r, val, NODE << 1 | 1);
     //     }
     // }
-
-    // int findLast(int x, int NODE = 1) {
+    
+    // int findLast(int l, int r, T val, int NODE = 1) {
     //     int LEN = (n >> MSB(NODE));
     //     int L = (NODE ^ (1 << MSB(NODE))) * LEN;
     //     int R = L + LEN - 1;
-
-    //     if (LEN == 1) {
-    //         return R;
+        
+    //     if (R < l || L > r || tree[NODE] != func(tree[NODE], val)) {
+    //         return -1;
+    //     }
+    //     else if (L == R) {
+    //         return L;
     //     }
     //     else {
     //         int M = (L + R) >> 1;
     //         push(NODE, LEN);
-    //         ...
+    //         int res = findLast(l, r, val, NODE << 1 | 1);
+    //         if (res != -1) { return res; }
+    //         return findLast(l, r, val, NODE << 1);
     //     }
     // }
 };
