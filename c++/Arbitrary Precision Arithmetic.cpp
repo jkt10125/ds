@@ -1,19 +1,18 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int BASE = 26;
-const int LEN = 1048576;
+// const int BASE = 26;
+// const int LEN = 1048576;
 
 /**
  * Assumptions:
  *  - LEN is a power of 2 (while using NTT)
 */
 
-// template <const int BASE, const size_t LEN>
+template <const int BASE, const size_t LEN>
 struct ArbitraryBaseInt : std::vector<int> {
     bool NEGATIVE;
     ArbitraryBaseInt() : std::vector<int> (LEN), NEGATIVE(false) {}
-
 
     ArbitraryBaseInt operator + (const ArbitraryBaseInt &rhs) const {
         ArbitraryBaseInt res = *this;
@@ -23,7 +22,6 @@ struct ArbitraryBaseInt : std::vector<int> {
         }
         return res;
     }
-
 
     ArbitraryBaseInt operator - (const ArbitraryBaseInt &rhs) const {
         ArbitraryBaseInt res = *this;
@@ -40,7 +38,6 @@ struct ArbitraryBaseInt : std::vector<int> {
         const int root = 5;
         const int root_1 = 4404020;
         const int len_1 = 7340026;
-
         auto ntt = [&] (ArbitraryBaseInt &A, bool inv) {
             for (int i = 1, j = 0; i < LEN; i++) {
                 int bit = LEN >> 1;
@@ -122,9 +119,7 @@ struct ArbitraryBaseInt : std::vector<int> {
             res[i] /= rhs;
         }
         return res;
-    }
-
-    
+    }    
 };
 
 int main() {
@@ -149,12 +144,12 @@ int main() {
     //     cout << a[i] << " ";
     // }
 
-    ArbitraryBaseInt a, b;
-    for (int i = 0; i < 9; i++) {
+    ArbitraryBaseInt<2, 1048576> a, b;
+    for (int i = 0; i < 3; i++) {
         a[i] = b[i] = 1;
     }
 
-    ArbitraryBaseInt c = a * b;
+    auto c = a * b;
 
     for (int i = 0; i < 20; i++) {
         cout << c[i] << " ";
