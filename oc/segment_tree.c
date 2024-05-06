@@ -36,7 +36,12 @@ segtree_info_type segtree_info_combine_impl(segtree_info_type lhs, segtree_info_
 
 }
 
-int (*segtree_node_pred)(int); // predicate function to find first/last node satisfying some condition
+/*******************************************************************************************/
+
+// predicate function to find first/last node satisfying some condition
+int (*segtree_node_pred)(int);
+
+int segtree_length; // Segment Tree default Length. Must be initialized as power of 2
 
 void segtree_apply_impl(int node, segtree_tag_type tag, int size) {
     segtree_tag_apply_impl(node, tag);
@@ -53,7 +58,10 @@ void segtree_push_impl(int node, int size) {
 }
 
 void segtree_pull_impl(int node) {
-    segtree_info[node] = segtree_info_combine_impl(segtree_info[2 * node], segtree_info[2 * node + 1]);
+    segtree_info[node] = segtree_info_combine_impl(
+        segtree_info[2 * node], 
+        segtree_info[2 * node + 1]
+    );
 }
 
 void segtree_point_update_impl(int idx, segtree_info_type info, int node, int l, int r) {
@@ -87,13 +95,16 @@ void segtree_range_update_impl(int L, int R, segtree_tag_type tag, int node, int
 
 segtree_info_type segtree_range_query_impl(int L, int R, int node, int l, int r) {
     if (r < L || R < l) {
-        return segtree_info[0];
+        return segtree_info[0]; // segtree_info_default
     } else if (L <= l && r <= R) {
         return segtree_info[node];
     }
     int m = (l + r) / 2;
     segtree_push_impl(node, r - l + 1);
-    return segtree_info_combine_impl(segtree_range_query_impl(L, R, 2 * node, l, m), segtree_range_query_impl(L, R, 2 * node + 1, m + 1, r));
+    return segtree_info_combine_impl(
+        segtree_range_query_impl(L, R, 2 * node, l, m), 
+        segtree_range_query_impl(L, R, 2 * node + 1, m + 1, r)
+    );
 }
 
 // b: 0 for first, 1 for last
@@ -124,38 +135,43 @@ int segtree_find_impl(int L, int R, int node, int l, int r, int b) {
 //     return res;
 // }
 
-// Segment Tree default Functions
-void segtree_default_init() {
-
-}
 
 void segtree_point_update(int idx, segtree_info_type info) {
-    segtree_point_update_impl(idx, info, 1, 0, SEG_TREE_NODES - 1);
+    segtree_point_update_impl(idx, info, 1, 0, segtree_length - 1);
 }
 
 void segtree_range_update(int L, int R, segtree_tag_type tag) {
-    segtree_range_update_impl(L, R, tag, 1, 0, SEG_TREE_NODES - 1);
+    segtree_range_update_impl(L, R, tag, 1, 0, segtree_length - 1);
 }
 
 segtree_info_type segtree_range_query(int L, int R) {
-    return segtree_range_query_impl(L, R, 1, 0, SEG_TREE_NODES - 1);
+    return segtree_range_query_impl(L, R, 1, 0, segtree_length - 1);
 }
 
 int segtree_find_first(int L, int R, int (*pred)(int)) {
     segtree_node_pred = pred;
-    return segtree_find_impl(L, R, 1, 0, SEG_TREE_NODES - 1, 0);
+    return segtree_find_impl(L, R, 1, 0, segtree_length - 1, 0);
 }
 
 int segtree_find_last(int L, int R, int (*pred)(int)) {
     segtree_node_pred = pred;
-    return segtree_find_impl(L, R, 1, 0, SEG_TREE_NODES - 1, 1);
+    return segtree_find_impl(L, R, 1, 0, segtree_length - 1, 1);
 }
 
 // int segtree_find_kth(int L, int R, int k) {
-//     return segtree_find_kth_impl(L, R, k, 1, 0, SEG_TREE_NODES - 1);
+//     return segtree_find_kth_impl(L, R, k, 1, 0, segtree_length - 1);
 // }
 
+/*******************************************************************************************/
+
+// Segment Tree default Functions
+void segtree_default_init(int n) {
+    segtree_length = 1;
+    while (n > segtree_length) { segtree_length <<= 1; }
+    // ...
+}
+
 int main() {
-    segtree_default_init();
+    segtree_default_init(SEG_TREE_NODES);
     return 0;
 }

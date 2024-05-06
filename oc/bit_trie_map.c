@@ -1,6 +1,5 @@
 typedef int       i32;  typedef unsigned int       u32;
 typedef long long i64;  typedef unsigned long long u64;
-// typedef __int128 i128;  typedef __uint128_t       u128;
 
 const int btrie_DEPTH = 31;
 const int btrie_pINF = 0xffffffff;

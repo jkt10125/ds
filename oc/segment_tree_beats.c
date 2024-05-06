@@ -1,28 +1,36 @@
 #include <stdio.h>
 
+typedef int       i32;  typedef unsigned int       u32;
+typedef long long i64;  typedef unsigned long long u64;
+
 #define SEG_TREE_NODES (1 << 20)
 #define INT_MAX 0x7fffffff
 #define INT_MIN 0x80000000
 
 typedef int cmp_type;
 
-int i32_min(int a, int b) { return a < b ? a : b; }
-int i32_max(int a, int b) { return a > b ? a : b; }
+i32 i32_min(i32 a, i32 b) { return a < b ? a : b; }
+i32 i32_max(i32 a, i32 b) { return a > b ? a : b; }
 
-long long i64_min(long long a, long long b) { return a < b ? a : b; }
-long long i64_max(long long a, long long b) { return a > b ? a : b; }
+i64 i64_min(i64 a, i64 b) { return a < b ? a : b; }
+i64 i64_max(i64 a, i64 b) { return a > b ? a : b; }
+
+/*******************************************************************************************/
 
 typedef struct segtree_tag_type {
-    int val;
+    i32 val;
 } segtree_tag_type;
 
 typedef struct segtree_info_type {
-    int max_val, second_max_val, max_cnt;
-    long long sum;
+    i32 max_val, second_max_val, max_cnt;
+    i64 sum;
 } segtree_info_type;
 
 segtree_tag_type segtree_tag[2 * SEG_TREE_NODES];
 segtree_info_type segtree_info[2 * SEG_TREE_NODES];
+
+// Segment Tree default Length. Must be initialized as power of 2
+int segtree_length;
 
 // Initializes segment tree tag to default value
 void segtree_tag_init(int node) {
@@ -36,13 +44,13 @@ void segtree_tag_apply_impl(int node, segtree_tag_type tag) {
 
 // for comparing with default value
 int segtree_tag_zeq_impl(int node) {
-    segtree_tag[node].val == segtree_tag[0].val;
+    return segtree_tag[node].val == segtree_tag[0].val;
 }
 
 // Applies the tag to the segment tree info
 void segtree_info_apply_impl(int node, segtree_tag_type tag) {
     if (segtree_info[node].second_max_val < tag.val && tag.val < segtree_info[node].max_val) {
-        segtree_info[node].sum -= (long long) (segtree_info[node].max_val - tag.val) * segtree_info[node].max_cnt;
+        segtree_info[node].sum -= (segtree_info[node].max_val - tag.val) * 1ll * segtree_info[node].max_cnt;
         segtree_info[node].max_val = tag.val;
     }
 }
@@ -123,75 +131,41 @@ segtree_info_type segtree_range_query_impl(int L, int R, int node, int l, int r)
     }
     int m = (l + r) / 2;
     segtree_push_impl(node);
-    return segtree_info_combine_impl(segtree_range_query_impl(L, R, 2 * node, l, m), segtree_range_query_impl(L, R, 2 * node + 1, m + 1, r));
+    return segtree_info_combine_impl(
+        segtree_range_query_impl(L, R, 2 * node, l, m), 
+        segtree_range_query_impl(L, R, 2 * node + 1, m + 1, r)
+    );
 }
 
 // Segment Tree default Functions
-void segtree_default_init() {
+void segtree_default_init(int n) {
     segtree_tag[0].val = INT_MAX;
     segtree_info[0].max_val = segtree_info[0].second_max_val = INT_MIN;
     segtree_info[0].sum = segtree_info[0].max_cnt = 0;
-    for (int i = 1; i < 2 * SEG_TREE_NODES; i++) {
+    
+    segtree_length = 1;
+    while (n > segtree_length) { segtree_length <<= 1; }
+    for (int i = 1; i < 2 * segtree_length; i++) {
         segtree_tag[i] = segtree_tag[0];
         segtree_info[i] = segtree_info[0];
     }
 }
 
 void segtree_point_update(int idx, segtree_info_type info) {
-    segtree_point_update_impl(idx, info, 1, 0, SEG_TREE_NODES - 1);
+    segtree_point_update_impl(idx, info, 1, 0, segtree_length - 1);
 }
 
 void segtree_range_update(int L, int R, segtree_tag_type tag) {
-    segtree_range_update_impl(L, R, tag, 1, 0, SEG_TREE_NODES - 1);
+    segtree_range_update_impl(L, R, tag, 1, 0, segtree_length - 1);
 }
 
 segtree_info_type segtree_range_query(int L, int R) {
-    return segtree_range_query_impl(L, R, 1, 0, SEG_TREE_NODES - 1);
+    return segtree_range_query_impl(L, R, 1, 0, segtree_length - 1);
 }
 
-void segtree_print(int n) {
-    for (int i = 0; i < n; i++) {
-        printf("%lld ", segtree_range_query(i, i).sum);
-    }
-    printf("\n");
-}
-
-int A[SEG_TREE_NODES], H[SEG_TREE_NODES];
+/*******************************************************************************************/
 
 int main() {
-    int t;
-    scanf("%d", &t);
-    while (t--) {
-        int n, mex = 0;
-        scanf("%d", &n);
-        segtree_default_init(n); 
-        for (int i = 0; i <= n; i++) H[i] = 0;
-        segtree_info_type info = segtree_info[0]; info.max_cnt = 1;
-        segtree_tag_type tag = segtree_tag[0];
-        for (int i = 0; i < n; i++) {
-            scanf("%d", &A[i]);
-            H[A[i]] = 1;
-            while (H[mex]) mex++;
-            info.sum = info.max_val = mex;
-            segtree_point_update(i, info);
-        }
-        long long ans = segtree_range_query(0, n - 1).sum;
-        printf("##$ ");
-        segtree_print(n);
-
-        for (int i = 0; i < n; i++) {
-            tag.val = A[i];
-            info.sum = info.max_val = n;
-            segtree_range_update(0, n - 1, tag);
-            segtree_point_update(i, info);
-            long long sum = segtree_range_query(0, n - 1).sum;
-            ans = ans > sum ? ans : sum;
-            printf("##$ ");
-
-            segtree_print(n);
-        }
-
-        printf("%lld\n", ans);
-    }
+    segtree_default_init(SEG_TREE_NODES);
     return 0;
 }
