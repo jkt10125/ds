@@ -1,13 +1,9 @@
-#include <stdio.h>
-
 typedef int       i32;  typedef unsigned int       u32;
 typedef long long i64;  typedef unsigned long long u64;
 
 #define SEG_TREE_NODES (1 << 20)
 #define INT_MAX 0x7fffffff
 #define INT_MIN 0x80000000
-
-typedef int cmp_type;
 
 i32 i32_min(i32 a, i32 b) { return a < b ? a : b; }
 i32 i32_max(i32 a, i32 b) { return a > b ? a : b; }
