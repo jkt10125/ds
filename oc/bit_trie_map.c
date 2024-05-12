@@ -164,7 +164,7 @@ int btrie_order_of_key(key_type x) {
         int b = (x >> i) & 1;
         res += b * btrie[btrie[p].c[0]].cnt;
         if (!btrie[p].c[b]) {
-            return res;
+            break;
         }
         p = btrie[p].c[b];
     }
